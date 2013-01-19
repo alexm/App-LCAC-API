@@ -1,0 +1,24 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Net::DNS;
+
+my ($name) = @ARGV or die "usage: $0 name\n";
+
+my $res   = Net::DNS::Resolver->new(
+    nameservers => [qw( 127.0.0.1 )],
+    port        => 1234,
+    tcp_timeout => 10,
+    udp_timeout => 10,
+);
+my $query = $res->query($name, "TXT");
+ 
+if ($query) {
+    foreach my $rr ($query->answer) {
+        next unless $rr->type eq "TXT";
+        print $rr->txtdata, "\n";
+    }
+} else {
+    warn "query failed: ", $res->errorstring, "\n";
+}
