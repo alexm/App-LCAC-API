@@ -1,4 +1,5 @@
 #!/usr/bin/perl
+# PODNAME: dns-query
 
 use strict;
 use warnings;

@@ -3,6 +3,26 @@ use warnings;
 package App::LCAC::API::DNS;
 # ABSTRACT: Query LCAC databases via DNS
 
+=head1 SYNOPSIS
+
+    use App::LCAC::API::DNS;
+    App::LCAC::API::DNS->new( db => { name => $db } )->run;
+
+=head1 DESCRIPTION
+
+This module lets you have a DNS server that can be used to query
+several LCAC databases in only one instance.
+
+Any DNS resolver can be used as a client to this server, but be
+warned that query syntax is not compatible with standard DNS layout.
+Only authoritative TXT queries are supported so far.
+
+=head2 Example with dig:
+
+    dig @localhost -p 1234 +short dbname:file:key txt
+
+=cut
+
 use Net::DNS::Nameserver ();
 use Text::CSV::LCAC      ();
 
@@ -25,7 +45,7 @@ sub __reply_handler {
             $rcode = "NXDOMAIN";
 	}
     }
-    else{
+    else {
         $rcode = "NXDOMAIN";
     }
 
@@ -34,6 +54,28 @@ sub __reply_handler {
     # mark the answer as authoritive by setting the 'aa' flag
     return( $rcode, \@ans, \@auth, \@add, { aa => 1 } );
 }
+
+=method new( %params )
+
+Returns a new object built with parameters:
+
+=over 4
+
+=item host
+
+Hostname to bind the DNS server, defaults to localhost.
+
+=item port
+
+Port to bind the DNS server, defaults to 5353.
+
+=item db
+
+Hash reference of database names and C<Text::CSV::LCAC> objects.
+
+=back
+
+=cut
 
 sub new {
     my ( $class, %params ) = @_;
@@ -51,6 +93,12 @@ sub new {
 
     return $object;
 }
+
+=method run( )
+
+Starts the server.
+
+=cut
 
 sub run {
     my $self = shift;
