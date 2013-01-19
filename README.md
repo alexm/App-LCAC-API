@@ -1,5 +1,12 @@
-DNS API for LCAC network database
-=================================
+API for LCAC databases
+======================
 
-API that supports querying LCAC network database over DNS.
+Support querying LCAC databases over different protocols.
+
+DNS
+---
+
+Support querying LCAC databases over DNS, e.g.
+
+    dig @localhost -p 1234 +short db:file:key:field txt
 

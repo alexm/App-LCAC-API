@@ -1,0 +1,54 @@
+#!/usr/bin/perl
+ 
+use strict;
+use warnings;
+
+use Getopt::Long                 qw( GetOptions );
+use Text::CSV::LCAC::Categorizer qw();
+use Text::CSV::LCAC::NetDB       qw();
+use App::LCAC::API::DNS          qw();
+
+my %opt = (
+    host        => '',
+    port        => '',
+    categorizer => '',
+    netdb       => '',
+);
+
+GetOptions(
+    \%opt,
+    'host=s',
+    'port=s',
+    'categorizer=s',
+    'netdb=s',
+)
+    or die "usage: $0 --host=H --port=P --categorizer=D --netdb=D\n";
+
+my %db;
+
+for my $name (qw( Categorizer NetDB )) {
+    my $lc_name = lc $name;
+
+    if ( defined( $opt{$lc_name} ) ) {
+        my %args = (
+            name => $lc_name,
+            dir  => $opt{$lc_name},
+        );
+
+        if ( $name eq 'Categorizer' ) {
+            $db{$lc_name} = Text::CSV::LCAC::Categorizer->new(%args)
+                or die "cannot open db $opt{$lc_name}\n";
+	}
+	elsif ( $name eq 'NetDB' ) {
+            $db{$lc_name} = Text::CSV::LCAC::NetDB->new(%args)
+                or die "cannot open db $opt{$lc_name}\n";
+	}
+    }
+}
+
+App::LCAC::API::DNS->new(
+    host => $opt{host},
+    port => $opt{port},
+    db   => \%db,
+    sep  => qr/:/,
+)->run;

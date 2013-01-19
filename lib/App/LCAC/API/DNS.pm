@@ -3,16 +3,17 @@ use warnings;
 package App::LCAC::API::DNS;
 # ABSTRACT: Query LCAC databases via DNS
 
-use Net::DNS::Nameserver;
+use Net::DNS::Nameserver ();
+use Text::CSV::LCAC      ();
 
 sub __reply_handler {
     my ( $self, $qname, $qclass, $qtype, $peerhost, $query, $conn ) = @_;
     my ( $rcode, @ans, @auth, @add );
  
-    print localtime . ": received $qtype query $qname from $peerhost\n";
+    my $dbname = (split Text::CSV::LCAC->separator(), $qname)[0];
  
-    if ( $qtype eq "TXT" ) {
-	my $qreply = $self->{db}->query($qname);
+    if ( $dbname ne "" && $qtype eq "TXT" && exists $self->{db}{$dbname} ) {
+	my $qreply = $self->{db}{$dbname}->query($qname);
 
 	if ( defined $qreply ) {
             my ( $ttl, $rdata ) = ( 1, $qreply );
@@ -27,6 +28,8 @@ sub __reply_handler {
     else{
         $rcode = "NXDOMAIN";
     }
+
+    print localtime . " received $qtype query $qname from $peerhost with $rcode\n";
  
     # mark the answer as authoritive by setting the 'aa' flag
     return( $rcode, \@ans, \@auth, \@add, { aa => 1 } );
