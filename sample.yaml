@@ -1,0 +1,17 @@
+xmpp:
+    jabber_id: 'foo.bar@gmail.com'
+    server: 'talk.google.com'
+    port: 443
+    old_style_ssl: 1
+    password: 'PassWord'
+    presence: 'Hello, world!'
+    debug: 0
+ 
+whitelist:
+    - 'bar.foo@gmail.com'
+
+dns:
+    nameservers:
+        - 127.0.0.1
+    port: 5353
+    timeout: 10
