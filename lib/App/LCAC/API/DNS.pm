@@ -106,4 +106,29 @@ sub run {
     $self->{ns}->main_loop;
 }
 
+=method query( $resolver, $text )
+
+Queries the resolver for text.
+
+=cut
+
+sub query {
+    my ( $class, $resolver, $text ) = @_;
+
+    my $reply = "";
+    my $query = $resolver->query( $text, "TXT" );
+    if ($query) {
+        for my $rr ( $query->answer ) {
+            next unless $rr->type eq "TXT";
+
+            $reply .= $rr->txtdata;
+        }
+    }
+    else {
+        $reply = "query failed: " . $resolver->errorstring;
+    }
+
+    return $reply;
+}
+
 1;
