@@ -19,31 +19,37 @@ Only authoritative TXT queries are supported so far.
 
 =head2 Example with dig:
 
-    dig @localhost -p 1234 +short dbname:file:key txt
+    QUERY="dbname:SELECT+*+FROM+table+WHERE+column=^value^"
+    dig @localhost -p 1234 +short +tcp $QUERY txt | tr -d '"'
 
 =cut
 
 use Net::DNS::Nameserver ();
-use Text::CSV::LCAC      ();
 
 sub __reply_handler {
     my ( $self, $qname, $qclass, $qtype, $peerhost, $query, $conn ) = @_;
     my ( $rcode, @ans, @auth, @add );
  
-    my $dbname = (split Text::CSV::LCAC->separator(), $qname)[0];
+    my ( $dbname, $qtext ) = split /\s*:\s*/, $qname, 2;
+    $qtext =~ y/\+\^/ '/;
  
     if ( $dbname ne "" && $qtype eq "TXT" && exists $self->{db}{$dbname} ) {
-	my $qreply = $self->{db}{$dbname}->query($qname);
+        my $sth = $self->{db}{$dbname}->prepare($qtext);
+        $sth->execute();
 
-	if ( defined $qreply ) {
-            my ( $ttl, $rdata ) = ( 1, $qreply );
-            my $rr = Net::DNS::RR->new("$qname $ttl $qclass $qtype $rdata");
-            push @ans, $rr;
+        my $result = $sth->fetchall_arrayref();
+        if ( defined $result && @$result > 0 ) {
+            for my $row (@$result) {
+                my $qreply = join ':', @$row;
+                my ( $ttl, $rdata ) = ( 1, $qreply );
+                my $rr = Net::DNS::RR->new("$qname $ttl $qclass $qtype $rdata");
+                push @ans, $rr;
+            }
             $rcode = "NOERROR";
         }
-	else {
+        else {
             $rcode = "NXDOMAIN";
-	}
+        }
     }
     else {
         $rcode = "NXDOMAIN";
@@ -71,7 +77,7 @@ Port to bind the DNS server, defaults to 5353.
 
 =item db
 
-Hash reference of database names and C<Text::CSV::LCAC> objects.
+Hash reference of database names and C<DBI> objects.
 
 =back
 
