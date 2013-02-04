@@ -1,4 +1,5 @@
 #!/usr/bin/env perl
+# PODNAME: xmpp-bot
 
 use strict;
 use warnings;
