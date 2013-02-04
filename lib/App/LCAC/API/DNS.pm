@@ -82,7 +82,7 @@ sub new {
 
     my $object = bless {}, $class;
     my $ns     = Net::DNS::Nameserver->new(
-	LocalAddr    => $params{host} || 'localhost',
+        LocalAddr    => $params{host} || '127.0.0.1',
         LocalPort    => $params{port} || '5353',
         ReplyHandler => sub { __reply_handler( $object, @_ ) },
         Verbose      => 0,
