@@ -1,0 +1,86 @@
+categorizer:
+  csv_sep_char: ':'
+  csv_allow_whitespace: 1
+  csv_allow_loose_quotes: 1
+  csv_tables:
+    'site.categ':
+      col_names:
+        - category
+        - members
+
+netdb:
+  csv_sep_char: ':'
+  csv_allow_whitespace: 1
+  csv_allow_loose_quotes: 1
+  csv_tables:
+    'Equipment':
+      col_names:
+        - Name
+        - Type
+        - Brand
+        - Model
+        - Monitor
+        - KeyboardType
+        - SerialNumber
+        - Description
+        - Comments
+    'Equipment.Admin':
+      col_names:
+        - Name
+        - EquipmentGroup
+        - Owner
+        - Admin
+        - UPCInventario
+        - BuyDate
+        - FechaFinGarantia
+        - FechaAlta
+        - NumeroPedido
+    'EquipmentGroup':
+      col_names:
+        - Name
+        - IPPool
+    'IPAddress':
+      col_names:
+        - IP
+        - Name
+    'IPName.Service':
+      col_names:
+        - Name
+        - Services
+    'IPPool':
+      col_names:
+        - Name
+        - IPList
+    'MAC-IP':
+      col_names:
+        - MAC
+        - IPorIPPool
+    'NAP':
+      col_names:
+        - Building
+        - Name
+        - Room
+        - Workspace
+        - State
+        - Map
+        - MapLocation
+        - Tags
+        - Comments
+    'NAP-NIP':
+      col_names:
+        - Building
+        - Name
+        - EquipmentName
+        - EthName
+    'NIP':
+      col_names:
+        - EquipmentName
+        - EthName
+        - SpeedMbps
+        - MAC
+    'VLAN':
+      col_names:
+        - Number
+        - Name
+        - IPPool
+
