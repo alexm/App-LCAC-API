@@ -7,31 +7,32 @@ use warnings;
 use Getopt::Long                 qw( GetOptions );
 use App::LCAC::API::DNS          qw();
 use App::LCAC::API::DBI          qw();
+use Config::Any                  qw();
 
 my %opt = (
-    host        => '',
-    port        => '',
-    categorizer => '',
-    netdb       => '',
+    host   => '',
+    port   => '',
+    config => '',
 );
 
 GetOptions(
     \%opt,
     'host=s',
     'port=s',
-    'categorizer=s',
-    'netdb=s',
+    'config=s',
 )
-    or die "usage: $0 --host=H --port=P --categorizer=D --netdb=D\n";
+    or die "usage: $0 --host=H --port=P --config=F\n";
+
+my $config = Config::Any->load_files({
+    files           => [$opt{config}],
+    use_ext         => 1,
+    flatten_to_hash => 1,
+})->{ $opt{config} };
 
 my %db;
 
-for my $name (qw( Categorizer NetDB )) {
-    my $lc_name = lc $name;
-
-    if ( defined( $opt{$lc_name} ) ) {
-       $db{$lc_name} = App::LCAC::API::DBI->$lc_name( $opt{$lc_name} );
-    }
+for my $name (keys %$config) {
+    $db{$name} = App::LCAC::API::DBI->connect( db => $config->{$name} );
 }
 
 App::LCAC::API::DNS->new(
